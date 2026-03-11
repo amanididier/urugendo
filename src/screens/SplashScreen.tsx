@@ -1,90 +1,118 @@
 import { motion } from 'framer-motion';
 import { useApp, t } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
-import { Bus, Mountain } from 'lucide-react';
+import { Bus, MapPin } from 'lucide-react';
+import splashBg from '@/assets/splash-bg.jpg';
 
 const SplashScreen = () => {
   const { language, setLanguage, setCurrentScreen } = useApp();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-primary px-6 relative overflow-hidden">
-      {/* Background hills */}
-      <svg className="absolute bottom-0 left-0 w-full opacity-10" viewBox="0 0 400 200" fill="none">
-        <path d="M0 200 Q50 80 100 120 Q150 60 200 100 Q250 40 300 90 Q350 50 400 80 L400 200 Z" fill="currentColor" className="text-primary-foreground"/>
-      </svg>
+    <div className="flex flex-col min-h-screen relative overflow-hidden">
+      {/* Background image */}
+      <div className="absolute inset-0">
+        <img
+          src={splashBg}
+          alt="Rwanda hills landscape"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/70" />
+      </div>
 
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', duration: 0.8 }}
-        className="flex flex-col items-center gap-4 z-10"
-      >
-        <div className="w-24 h-24 rounded-[28px] bg-accent-mint flex items-center justify-center">
-          <Bus className="w-12 h-12 text-primary" />
-        </div>
-        <motion.h1
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-4xl font-extrabold text-primary-foreground tracking-tight"
-        >
-          BusEase
-        </motion.h1>
+      {/* Content */}
+      <div className="relative z-10 flex flex-col min-h-screen px-6 pb-10">
+        {/* Top language toggle */}
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="flex items-center gap-1 text-primary-foreground/60 text-sm"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex justify-end pt-12"
         >
-          <Mountain className="w-4 h-4" />
-          <span>Rwanda</span>
+          <div className="flex items-center gap-1 bg-black/30 backdrop-blur-md rounded-full px-1 py-1">
+            <button
+              onClick={() => setLanguage('en')}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                language === 'en'
+                  ? 'bg-primary-foreground text-foreground'
+                  : 'text-primary-foreground/80'
+              }`}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => setLanguage('rw')}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                language === 'rw'
+                  ? 'bg-primary-foreground text-foreground'
+                  : 'text-primary-foreground/80'
+              }`}
+            >
+              RW
+            </button>
+          </div>
         </motion.div>
-      </motion.div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="text-primary-foreground/80 text-lg text-center mt-8 z-10 font-medium"
-      >
-        {t('Your seat. Your journey. Sorted.', 'Umwanya wawe. Urugendo rwawe. Byateguwe.', language)}
-      </motion.p>
+        {/* Spacer */}
+        <div className="flex-1" />
 
-      <motion.div
-        initial={{ y: 40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="w-full max-w-sm mt-12 z-10 space-y-4"
-      >
-        <Button
-          variant="mint"
-          size="lg"
-          className="w-full text-lg"
-          onClick={() => setCurrentScreen('home')}
+        {/* Logo + Info */}
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', duration: 0.7 }}
+          className="flex flex-col items-start gap-3 mb-4"
         >
-          {t('Get Started', 'Tangira', language)}
-        </Button>
+          <div className="w-14 h-14 rounded-2xl bg-accent-mint flex items-center justify-center shadow-lg">
+            <Bus className="w-7 h-7 text-primary" />
+          </div>
+          <h1 className="text-4xl font-extrabold text-primary-foreground tracking-tight leading-tight">
+            BusEase
+          </h1>
+          <p className="text-primary-foreground/70 text-sm font-medium flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5" />
+            {t('Your personal secure list of travel spots', 'Umwanya wawe. Urugendo rwawe. Byateguwe.', language)}
+          </p>
+        </motion.div>
 
-        <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={() => setLanguage('en')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              language === 'en' ? 'bg-primary-foreground/20 text-primary-foreground' : 'text-primary-foreground/50'
-            }`}
+        {/* Bottom actions */}
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="w-full space-y-4"
+        >
+          <Button
+            variant="mint"
+            size="lg"
+            className="w-full text-base font-bold"
+            onClick={() => setCurrentScreen('home')}
           >
-            English
-          </button>
-          <span className="text-primary-foreground/30">|</span>
-          <button
-            onClick={() => setLanguage('rw')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              language === 'rw' ? 'bg-primary-foreground/20 text-primary-foreground' : 'text-primary-foreground/50'
-            }`}
-          >
-            Kinyarwanda
-          </button>
-        </div>
-      </motion.div>
+            {t('Get Started', 'Tangira', language)}
+          </Button>
+
+          <p className="text-center text-primary-foreground/50 text-xs font-medium">
+            {t('or continue with', 'cyangwa komeza na', language)}
+          </p>
+
+          <div className="flex items-center justify-center gap-3">
+            {['G', '🍎', 'f'].map((icon, i) => (
+              <button
+                key={i}
+                className="w-12 h-12 rounded-full bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 flex items-center justify-center text-primary-foreground text-lg font-bold transition-all hover:bg-primary-foreground/20"
+              >
+                {icon}
+              </button>
+            ))}
+          </div>
+
+          <p className="text-center text-primary-foreground/50 text-xs">
+            {t("Don't have an account?", "Nta konti ufite?", language)}{' '}
+            <button className="text-accent-mint font-semibold">
+              {t('Create one', 'Fungura', language)}
+            </button>
+          </p>
+        </motion.div>
+      </div>
     </div>
   );
 };
