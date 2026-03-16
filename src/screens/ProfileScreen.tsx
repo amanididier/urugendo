@@ -1,65 +1,75 @@
 import { motion } from 'framer-motion';
 import { useApp, t } from '@/context/AppContext';
-import { User, Users, CreditCard, Bell, Globe, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 const ProfileScreen = () => {
   const { language, setLanguage, userName, setCurrentScreen } = useApp();
 
   const menuItems = [
-    { icon: <Users className="w-5 h-5" />, label: t('Saved Passengers', 'Abagenzi Babitswe', language) },
-    { icon: <CreditCard className="w-5 h-5" />, label: t('Payment Methods', 'Uburyo bwo Kwishyura', language) },
-    { icon: <Bell className="w-5 h-5" />, label: t('Notifications', 'Amakuru', language) },
-    { icon: <Globe className="w-5 h-5" />, label: t('Language', 'Ururimi', language), action: () => setLanguage(language === 'en' ? 'rw' : 'en'), right: language === 'en' ? 'English' : 'Kinyarwanda' },
-    { icon: <HelpCircle className="w-5 h-5" />, label: t('Help & Support', 'Ubufasha', language) },
+    { icon: '👥', label: 'Saved Passengers', bg: 'bg-purple-50' },
+    { icon: '💳', label: 'Payment Methods', bg: 'bg-amber-50' },
+    { icon: '🔔', label: 'Notifications', bg: 'bg-blue-50' },
+    { icon: '🌐', label: 'Language · EN / RW', bg: 'bg-green-50', action: () => setLanguage(language === 'en' ? 'rw' : 'en') },
+    { icon: '❓', label: 'Help & Support', bg: 'bg-blue-50' },
   ];
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="px-5 pt-14 pb-4">
-        <h1 className="text-2xl font-bold">{t('Profile', 'Umwirondoro', language)}</h1>
-      </div>
-
-      {/* Avatar card */}
+      {/* Profile hero */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mx-5 bg-card rounded-xl p-5 card-shadow flex items-center gap-4 mb-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-center pt-16 pb-4 anim"
       >
-        <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
-          <User className="w-8 h-8 text-primary-foreground" />
+        <div className="w-[60px] h-[60px] rounded-full bg-primary mx-auto flex items-center justify-center text-xl font-black text-primary-foreground">
+          JP
         </div>
-        <div>
-          <p className="font-bold text-lg">{userName}</p>
-          <p className="text-sm text-muted-foreground">+250 78X XXX XXX</p>
-        </div>
+        <div className="text-xl font-black text-foreground mt-3">{userName}</div>
+        <div className="text-[13px] text-muted-foreground font-semibold mt-1">+250 789 123 456</div>
       </motion.div>
 
+      {/* Stats */}
+      <div className="flex mx-4 bg-card rounded-[20px] border border-border overflow-hidden anim-d1">
+        <div className="flex-1 text-center py-4">
+          <div className="text-lg font-black text-foreground">3</div>
+          <div className="text-[11px] text-muted-foreground font-semibold">Upcoming</div>
+        </div>
+        <div className="flex-1 text-center py-4 border-x border-border">
+          <div className="text-lg font-black text-warning">12</div>
+          <div className="text-[11px] text-muted-foreground font-semibold">Total Trips</div>
+        </div>
+        <div className="flex-1 text-center py-4">
+          <div className="text-lg font-black text-green-500">4.9★</div>
+          <div className="text-[11px] text-muted-foreground font-semibold">Rating</div>
+        </div>
+      </div>
+
       {/* Menu */}
-      <div className="mx-5 bg-card rounded-xl card-shadow overflow-hidden">
+      <div className="mx-4 mt-4 bg-card rounded-[20px] border border-border overflow-hidden anim-d2">
         {menuItems.map((item, i) => (
-          <motion.button
+          <button
             key={i}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: i * 0.03 }}
             onClick={item.action}
-            className="w-full flex items-center gap-4 px-5 py-4 tap-target active:bg-accent/50 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-[14px] transition-colors hover:bg-background border-b border-border last:border-b-0"
           >
-            <div className="text-muted-foreground">{item.icon}</div>
-            <span className="flex-1 text-left font-medium text-sm">{item.label}</span>
-            {item.right && <span className="text-xs text-muted-foreground">{item.right}</span>}
+            <div className={`w-10 h-10 rounded-[14px] ${item.bg} flex items-center justify-center text-lg`}>
+              {item.icon}
+            </div>
+            <span className="flex-1 text-left text-sm font-bold text-foreground">{item.label}</span>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
-          </motion.button>
+          </button>
         ))}
       </div>
 
-      <div className="mx-5 mt-4">
+      {/* Logout */}
+      <div className="mx-4 mt-3">
         <button
           onClick={() => setCurrentScreen('splash')}
-          className="w-full flex items-center gap-4 px-5 py-4 bg-card rounded-xl card-shadow tap-target active:bg-destructive/5 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-[14px] bg-card rounded-[20px] border border-border hover:bg-background transition-colors"
         >
-          <LogOut className="w-5 h-5 text-destructive" />
-          <span className="font-medium text-sm text-destructive">{t('Logout', 'Gusohoka', language)}</span>
+          <div className="w-10 h-10 rounded-[14px] bg-red-50 flex items-center justify-center text-lg">🚪</div>
+          <span className="flex-1 text-left text-sm font-bold text-destructive">Logout</span>
+          <ChevronRight className="w-4 h-4 text-destructive" />
         </button>
       </div>
     </div>

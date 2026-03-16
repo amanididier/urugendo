@@ -8,45 +8,48 @@
   :root {
     --font-sans: 'Plus Jakarta Sans', sans-serif;
     
-    --background: 36 43% 96%;
-    --foreground: 0 0% 8%;
+    --background: 0 0% 98%;
+    --foreground: 240 10% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 8%;
+    --card-foreground: 240 10% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 8%;
+    --popover-foreground: 240 10% 4%;
 
-    --primary: 152 81% 20%;
+    --primary: 151 100% 36%;
     --primary-foreground: 0 0% 100%;
 
-    --accent-mint: 153 100% 45%;
-    --accent-mint-foreground: 0 0% 8%;
+    --accent-mint: 151 100% 36%;
+    --accent-mint-foreground: 0 0% 100%;
 
-    --secondary: 150 12% 92%;
-    --secondary-foreground: 0 0% 8%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 6% 10%;
 
-    --muted: 150 12% 92%;
-    --muted-foreground: 150 5% 50%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
 
-    --accent: 150 12% 92%;
-    --accent-foreground: 0 0% 8%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 6% 10%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --warning: 37 91% 55%;
-    --warning-foreground: 0 0% 8%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 240 10% 4%;
 
-    --border: 150 12% 92%;
-    --input: 150 12% 92%;
-    --ring: 152 81% 20%;
+    --success: 142 71% 45%;
+    --success-light: 138 76% 93%;
+
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 151 100% 36%;
 
     --radius: 1.25rem;
 
-    --shadow-card: 0 4px 24px -4px hsla(36, 20%, 30%, 0.08);
-    --shadow-card-hover: 0 8px 32px -4px hsla(36, 20%, 30%, 0.12);
-    --shadow-bottom-sheet: 0 -8px 40px -4px hsla(0, 0%, 0%, 0.12);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.055);
+    --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-bottom-sheet: 0 -8px 40px -4px rgba(0, 0, 0, 0.12);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -86,6 +89,18 @@
   }
 }
 
+/* Staggered animations */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.anim { animation: fadeSlideUp 0.4s ease both; }
+.anim-d1 { animation: fadeSlideUp 0.4s ease 0.05s both; }
+.anim-d2 { animation: fadeSlideUp 0.4s ease 0.1s both; }
+.anim-d3 { animation: fadeSlideUp 0.4s ease 0.15s both; }
+.anim-d4 { animation: fadeSlideUp 0.4s ease 0.2s both; }
+
 /* Skeleton loading animation */
 @keyframes skeleton-pulse {
   0%, 100% { opacity: 0.4; }
@@ -105,4 +120,13 @@
 }
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Live pulse */
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+.live-dot {
+  animation: livePulse 1.4s ease infinite;
 }

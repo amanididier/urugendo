@@ -1,134 +1,156 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useApp, t } from '@/context/AppContext';
-import { Button } from '@/components/ui/button';
-import { generateBusResults, formatRWF } from '@/data/busData';
-import { ArrowLeft, Wifi, Snowflake, Usb, Briefcase, Clock, AlertTriangle } from 'lucide-react';
+import { generateBusResults, formatRWF, AMENITY_MAP } from '@/data/busData';
+import { ChevronLeft } from 'lucide-react';
 
-const amenityIcons: Record<string, React.ReactNode> = {
-  wifi: <Wifi className="w-3.5 h-3.5" />,
-  ac: <Snowflake className="w-3.5 h-3.5" />,
-  usb: <Usb className="w-3.5 h-3.5" />,
-  luggage: <Briefcase className="w-3.5 h-3.5" />,
-};
-
-type SortType = 'earliest' | 'cheapest' | 'fastest';
+type FilterType = 'all' | 'earliest' | 'cheapest' | 'ac' | 'wifi';
 
 const ResultsScreen = () => {
-  const { language, bookingData, setBookingData, setCurrentScreen } = useApp();
-  const [sort, setSort] = useState<SortType>('earliest');
+  const { language, bookingData, setBookingData, setCurrentScreen, goBack } = useApp();
+  const [filter, setFilter] = useState<FilterType>('all');
 
   const buses = useMemo(() => generateBusResults(bookingData.from, bookingData.to), [bookingData.from, bookingData.to]);
 
-  const sorted = useMemo(() => {
-    const arr = [...buses];
-    if (sort === 'cheapest') arr.sort((a, b) => a.price - b.price);
-    if (sort === 'fastest') arr.sort((a, b) => a.dep.localeCompare(b.dep));
+  const filtered = useMemo(() => {
+    let arr = [...buses];
+    if (filter === 'earliest') arr.sort((a, b) => a.dep.localeCompare(b.dep));
+    if (filter === 'cheapest') arr.sort((a, b) => a.price - b.price);
+    if (filter === 'ac') arr = arr.filter(b => b.amenities.includes('ac'));
+    if (filter === 'wifi') arr = arr.filter(b => b.amenities.includes('wifi'));
     return arr;
-  }, [buses, sort]);
+  }, [buses, filter]);
 
-  const sortOptions: { key: SortType; label: string }[] = [
-    { key: 'earliest', label: t('Earliest', 'Mbere', language) },
-    { key: 'cheapest', label: t('Cheapest', 'Ihendutse', language) },
-    { key: 'fastest', label: t('Fastest', 'Byihuse', language) },
+  const filters: { key: FilterType; label: string }[] = [
+    { key: 'all', label: 'All' },
+    { key: 'earliest', label: 'Earliest' },
+    { key: 'cheapest', label: 'Cheapest' },
+    { key: 'ac', label: '⚡ AC' },
+    { key: 'wifi', label: '📶 WiFi' },
   ];
 
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="bg-card card-shadow px-5 pt-14 pb-4">
+      <div className="px-5 pt-14 pb-2">
         <div className="flex items-center gap-3">
-          <button onClick={() => setCurrentScreen('home')} className="tap-target flex items-center justify-center">
-            <ArrowLeft className="w-6 h-6" />
+          <button
+            onClick={goBack}
+            className="w-10 h-10 rounded-[14px] bg-card border border-border flex items-center justify-center"
+          >
+            <ChevronLeft className="w-[18px] h-[18px] text-foreground" />
           </button>
           <div>
-            <p className="font-bold text-base">{bookingData.from} → {bookingData.to}</p>
-            <p className="text-xs text-muted-foreground">{bookingData.date || 'Today'} · {bookingData.passengers} {t('passenger', 'umugenzi', language)}{bookingData.passengers > 1 ? 's' : ''}</p>
+            <div className="text-[17px] font-black text-foreground">{bookingData.from} → {bookingData.to}</div>
+            <div className="text-xs text-muted-foreground font-medium">{bookingData.date || 'Today'} · {bookingData.passengers} passenger{bookingData.passengers > 1 ? 's' : ''}</div>
           </div>
         </div>
       </div>
 
       {/* Filter chips */}
-      <div className="flex gap-2 px-5 py-3 overflow-x-auto hide-scrollbar">
-        {sortOptions.map(opt => (
+      <div className="flex gap-[7px] px-5 pt-3.5 overflow-x-auto hide-scrollbar">
+        {filters.map(f => (
           <button
-            key={opt.key}
-            onClick={() => setSort(opt.key)}
-            className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
-              sort === opt.key
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-card card-shadow text-foreground'
+            key={f.key}
+            onClick={() => setFilter(f.key)}
+            className={`flex-shrink-0 px-4 py-[7px] rounded-full text-xs font-bold transition-all border ${
+              filter === f.key
+                ? 'bg-primary border-primary text-primary-foreground'
+                : 'bg-card border-border text-muted-foreground hover:border-primary'
             }`}
           >
-            {opt.label}
+            {f.label}
           </button>
         ))}
       </div>
 
-      {/* Results */}
-      <div className="px-5 space-y-3">
-        {sorted.map((bus, i) => (
+      {/* Results count */}
+      <div className="px-5 pt-3 pb-2 text-[13px] text-muted-foreground font-semibold">
+        <strong className="text-foreground">{filtered.length} buses</strong> found today
+      </div>
+
+      {/* Bus cards */}
+      <div className="px-4 space-y-3">
+        {filtered.map((bus, i) => (
           <motion.div
             key={bus.id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="bg-card rounded-xl p-4 card-shadow"
+            onClick={() => {
+              setBookingData(prev => ({ ...prev, selectedBus: bus }));
+              setCurrentScreen('seats');
+            }}
+            className="cursor-pointer group"
           >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">{bus.operator.logo}</span>
-                <span className="font-semibold text-sm">{bus.operator.name}</span>
-              </div>
-              {bus.seats <= 5 && (
-                <div className="flex items-center gap-1 bg-warning/10 text-warning px-2 py-1 rounded-full text-xs font-semibold">
-                  <AlertTriangle className="w-3 h-3" />
-                  {t(`Only ${bus.seats} left!`, `${bus.seats} gusa!`, language)}
+            <div className={`bg-card rounded-[20px] border overflow-hidden transition-all group-hover:border-primary ${
+              bus.seats <= 2 ? 'border-red-200' : 'border-border'
+            }`}>
+              {/* Operator row */}
+              <div className="flex justify-between items-center px-[18px] pt-4 pb-2.5">
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-10 h-10 rounded-[14px] bg-gradient-to-br ${bus.operator.gradient} flex items-center justify-center text-lg`}>
+                    {bus.operator.logo}
+                  </div>
+                  <div>
+                    <div className="text-[13px] font-extrabold text-foreground">{bus.operator.name}</div>
+                    <div className="text-[11px] text-muted-foreground font-medium">Standard · 45 seats</div>
+                  </div>
                 </div>
-              )}
-            </div>
+                <span className={`text-[11px] font-extrabold px-2.5 py-1 rounded-full ${
+                  bus.seats <= 2 ? 'bg-red-50 text-red-700' :
+                  bus.seats <= 5 ? 'bg-amber-50 text-amber-700' :
+                  'bg-green-50 text-green-700'
+                }`}>
+                  {bus.seats <= 2 ? `${bus.seats} left!` : bus.seats <= 5 ? `${bus.seats} left` : `${bus.seats} seats`}
+                </span>
+              </div>
 
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <p className="text-xl font-bold">{bus.dep}</p>
-                <p className="text-xs text-muted-foreground">{bookingData.from}</p>
-              </div>
-              <div className="flex-1 mx-4 flex flex-col items-center">
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Clock className="w-3 h-3" />
-                  <span>2h 30m</span>
+              {/* Times */}
+              <div className="flex items-center px-[18px] pb-3">
+                <div>
+                  <div className="text-[32px] font-black text-foreground leading-none">{bus.dep}</div>
+                  <div className="text-[11px] text-muted-foreground font-semibold mt-1">Nyabugogo</div>
                 </div>
-                <div className="w-full h-px bg-border mt-1 relative">
-                  <div className="absolute left-0 w-2 h-2 bg-primary rounded-full -top-[3px]" />
-                  <div className="absolute right-0 w-2 h-2 bg-accent-mint rounded-full -top-[3px]" />
+                <div className="flex-1 mx-3 flex flex-col items-center gap-1.5">
+                  <div className="text-[11px] font-bold text-muted-foreground">{bus.duration}</div>
+                  <div className="w-full h-[1.5px] bg-border relative rounded">
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-zinc-300 rounded-full" />
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-zinc-300 rounded-full" />
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[32px] font-black text-foreground leading-none">{bus.arr}</div>
+                  <div className="text-[11px] text-muted-foreground font-semibold mt-1 text-right">{bookingData.to}</div>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-xl font-bold">{bus.arr}</p>
-                <p className="text-xs text-muted-foreground">{bookingData.to}</p>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-2 mb-3">
-              {bus.amenities.map(a => (
-                <div key={a} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-muted-foreground">
-                  {amenityIcons[a]}
+              {/* Bottom row */}
+              <div className="flex justify-between items-center px-[18px] pb-4 pt-2.5 border-t border-border">
+                <div className="flex gap-[5px]">
+                  {bus.amenities.map(a => (
+                    <div key={a} className="w-7 h-7 bg-background rounded-[9px] border border-border flex items-center justify-center text-[13px]">
+                      {AMENITY_MAP[a]?.emoji}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-between">
-              <p className="text-xl font-bold text-primary">{formatRWF(bus.price)}</p>
-              <Button
-                variant="mint"
-                size="sm"
-                onClick={() => {
-                  setBookingData(prev => ({ ...prev, selectedBus: bus }));
-                  setCurrentScreen('details');
-                }}
-              >
-                {t('Select', 'Hitamo', language)}
-              </Button>
+                <div className="flex items-center gap-2.5">
+                  <div className="text-right">
+                    <div className="text-[10px] text-muted-foreground font-semibold">per seat</div>
+                    <div className="text-[21px] font-black text-primary leading-none">{formatRWF(bus.price)}</div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setBookingData(prev => ({ ...prev, selectedBus: bus }));
+                      setCurrentScreen('seats');
+                    }}
+                    className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold hover:brightness-105 active:scale-[0.97] transition-all"
+                  >
+                    Select
+                  </button>
+                </div>
+              </div>
             </div>
           </motion.div>
         ))}
