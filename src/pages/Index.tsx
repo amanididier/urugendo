@@ -3,13 +3,10 @@ import { useApp } from '@/context/AppContext';
 import SplashScreen from '@/screens/SplashScreen';
 import HomeScreen from '@/screens/HomeScreen';
 import ResultsScreen from '@/screens/ResultsScreen';
-import BusDetailsScreen from '@/screens/BusDetailsScreen';
 import SeatSelectionScreen from '@/screens/SeatSelectionScreen';
-import PassengerDetailsScreen from '@/screens/PassengerDetailsScreen';
 import PaymentScreen from '@/screens/PaymentScreen';
 import ConfirmationScreen from '@/screens/ConfirmationScreen';
 import MyTicketsScreen from '@/screens/MyTicketsScreen';
-import AlertsScreen from '@/screens/AlertsScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
 import BottomNav from '@/components/BottomNav';
 
@@ -17,17 +14,14 @@ const screens: Record<string, React.FC> = {
   splash: SplashScreen,
   home: HomeScreen,
   results: ResultsScreen,
-  details: BusDetailsScreen,
   seats: SeatSelectionScreen,
-  passenger: PassengerDetailsScreen,
   payment: PaymentScreen,
   confirmation: ConfirmationScreen,
   tickets: MyTicketsScreen,
-  alerts: AlertsScreen,
   profile: ProfileScreen,
 };
 
-const showNav = ['home', 'results', 'tickets', 'alerts', 'profile'];
+const showNav = ['home', 'results', 'tickets', 'profile'];
 
 const Index = () => {
   const { currentScreen } = useApp();

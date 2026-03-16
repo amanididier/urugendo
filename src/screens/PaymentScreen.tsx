@@ -1,27 +1,24 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp, t } from '@/context/AppContext';
-import { Button } from '@/components/ui/button';
-import { formatRWF, generateBookingRef } from '@/data/busData';
-import { ArrowLeft, Shield, Check } from 'lucide-react';
-
-const paymentMethods = [
-  { id: 'mtn', label: 'MTN Mobile Money', emoji: '💚', color: 'bg-[#FFCC00]/10 border-[#FFCC00]/30' },
-  { id: 'airtel', label: 'Airtel Money', emoji: '🔴', color: 'bg-destructive/5 border-destructive/20' },
-  { id: 'card', label: 'Card (Coming Soon)', emoji: '💳', color: 'bg-muted', disabled: true },
-];
+import { formatRWF, generateBookingRef, getSeatLabel } from '@/data/busData';
+import { ChevronLeft } from 'lucide-react';
 
 const PaymentScreen = () => {
-  const { language, bookingData, setBookingData, setCurrentScreen } = useApp();
+  const { language, bookingData, setBookingData, setCurrentScreen, goBack } = useApp();
   const [selected, setSelected] = useState('mtn');
   const [loading, setLoading] = useState(false);
   const bus = bookingData.selectedBus;
 
   if (!bus) return null;
 
-  const baseFare = bus.price * bookingData.selectedSeats.length;
+  const baseFare = bus.price;
   const bookingFee = 500;
   const total = baseFare + bookingFee;
+
+  const seatLabel = bookingData.selectedSeats.length > 0 
+    ? `Row ${Math.floor(bookingData.selectedSeats[0] / 4) + 1}, Seat ${getSeatLabel(bookingData.selectedSeats[0])}`
+    : '—';
 
   const handlePay = () => {
     setLoading(true);
@@ -33,88 +30,96 @@ const PaymentScreen = () => {
     }, 1500);
   };
 
+  const payMethods = [
+    { id: 'mtn', name: 'MTN Mobile Money', sub: 'Recommended · 0789 XXX XXX', emoji: '💛', bgClass: 'bg-gradient-to-br from-yellow-400 to-amber-500' },
+    { id: 'airtel', name: 'Airtel Money', sub: '0739 XXX XXX', emoji: '❤️', bgClass: 'bg-gradient-to-br from-red-500 to-red-700' },
+    { id: 'card', name: 'Bank Card', sub: 'Coming soon', emoji: '💳', bgClass: 'bg-background border border-border', disabled: true },
+  ];
+
   return (
-    <div className="min-h-screen bg-background pb-28">
-      <div className="bg-card card-shadow px-5 pt-14 pb-4">
+    <div className="min-h-screen bg-background pb-32">
+      {/* Header */}
+      <div className="px-5 pt-14 pb-2">
         <div className="flex items-center gap-3">
-          <button onClick={() => setCurrentScreen('passenger')} className="tap-target flex items-center justify-center">
-            <ArrowLeft className="w-6 h-6" />
+          <button onClick={goBack} className="w-10 h-10 rounded-[14px] bg-card border border-border flex items-center justify-center">
+            <ChevronLeft className="w-[18px] h-[18px] text-foreground" />
           </button>
-          <h1 className="font-bold text-lg">{t('Choose Payment', 'Hitamo Kwishyura', language)}</h1>
+          <div>
+            <div className="text-[17px] font-black text-foreground">Payment</div>
+            <div className="text-xs text-muted-foreground font-medium">Almost there! 🎉</div>
+          </div>
         </div>
       </div>
 
-      <div className="px-5 mt-6 space-y-3">
-        {paymentMethods.map((method, i) => (
-          <motion.button
-            key={method.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            disabled={method.disabled}
-            onClick={() => !method.disabled && setSelected(method.id)}
-            className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all tap-target ${
-              method.disabled
-                ? 'opacity-40 cursor-not-allowed bg-muted border-border'
-                : selected === method.id
-                ? 'border-accent-mint bg-accent-mint/5 card-shadow'
-                : 'border-transparent bg-card card-shadow'
-            }`}
-          >
-            <span className="text-3xl">{method.emoji}</span>
-            <span className="font-semibold text-base flex-1 text-left">{method.label}</span>
-            {selected === method.id && !method.disabled && (
-              <div className="w-6 h-6 rounded-full bg-accent-mint flex items-center justify-center">
-                <Check className="w-4 h-4 text-foreground" />
+      {/* Order Summary */}
+      <div className="px-5 pt-4">
+        <div className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-2">Order Summary</div>
+        <div className="bg-card rounded-[22px] border border-border overflow-hidden">
+          {[
+            ['Route', `${bookingData.from} → ${bookingData.to}`],
+            ['Date & Time', `${bookingData.date || 'Today'} · ${bus.dep}`],
+            ['Operator', bus.operator.name],
+            ['Seat', seatLabel],
+            ['Base Fare', formatRWF(baseFare)],
+            ['Booking Fee', formatRWF(bookingFee)],
+          ].map(([label, value], i) => (
+            <div key={i} className="flex justify-between items-center px-[18px] py-[13px] border-b border-border last:border-b-0">
+              <span className="text-[13px] text-muted-foreground font-semibold">{label}</span>
+              <span className="text-[13px] font-bold text-foreground">{value}</span>
+            </div>
+          ))}
+          <div className="flex justify-between items-center px-[18px] py-[13px] border-t border-border">
+            <span className="text-[13px] font-extrabold text-foreground">Total</span>
+            <span className="text-xl font-black text-primary">{formatRWF(total)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Payment Methods */}
+      <div className="px-5 pt-5">
+        <div className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-2">Payment Method</div>
+        <div className="space-y-2">
+          {payMethods.map(pm => (
+            <button
+              key={pm.id}
+              disabled={pm.disabled}
+              onClick={() => !pm.disabled && setSelected(pm.id)}
+              className={`w-full flex items-center gap-3 bg-card border rounded-[18px] px-[18px] py-4 transition-all ${
+                pm.disabled ? 'opacity-40 cursor-not-allowed border-border' :
+                selected === pm.id ? 'border-primary' : 'border-border'
+              }`}
+            >
+              <div className={`w-[46px] h-[46px] rounded-[14px] ${pm.bgClass} flex items-center justify-center text-2xl`}>
+                {pm.emoji}
               </div>
-            )}
-          </motion.button>
-        ))}
-
-        {/* Phone pre-filled */}
-        <div className="mt-4">
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 block">
-            {t('Phone Number', 'Nomero ya Telefone', language)}
-          </label>
-          <div className="bg-card rounded-lg p-4 card-shadow text-base font-medium">
-            {bookingData.phone || '07X XXX XXX'}
-          </div>
-        </div>
-
-        {/* Order Summary */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-card rounded-xl p-4 card-shadow mt-4"
-        >
-          <h3 className="font-bold text-sm mb-3">{t('Order Summary', 'Incamake y\'Ibiciro', language)}</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t('Base Fare', 'Ikiguzi', language)}</span>
-              <span>{formatRWF(baseFare)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t('Booking Fee', 'Amafaranga yo gutegura', language)}</span>
-              <span>{formatRWF(bookingFee)}</span>
-            </div>
-            <div className="flex justify-between pt-2 border-t border-border font-bold text-base">
-              <span>{t('Total', 'Igiteranyo', language)}</span>
-              <span className="text-primary">{formatRWF(total)}</span>
-            </div>
-          </div>
-        </motion.div>
-
-        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-4">
-          <Shield className="w-4 h-4" />
-          <span>256-bit encrypted · Safe & Secure</span>
+              <div className="flex-1 text-left">
+                <div className="text-sm font-extrabold text-foreground">{pm.name}</div>
+                <div className="text-xs text-muted-foreground font-medium mt-0.5">{pm.sub}</div>
+              </div>
+              <div className={`w-5 h-5 rounded-full border-2 relative transition-colors ${
+                selected === pm.id && !pm.disabled ? 'border-primary' : 'border-border'
+              }`}>
+                {selected === pm.id && !pm.disabled && (
+                  <div className="absolute w-2 h-2 rounded-full bg-primary top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                )}
+              </div>
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-card p-5 border-t border-border">
-        <Button variant="mint" size="lg" className="w-full" onClick={handlePay} disabled={loading}>
-          {loading ? t('Processing...', 'Birimo gutunganywa...', language) : `${t('Pay', 'Ishyura', language)} ${formatRWF(total)}`}
-        </Button>
+      {/* Pay button */}
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 z-40">
+        <button
+          onClick={handlePay}
+          disabled={loading}
+          className="w-full bg-primary text-primary-foreground rounded-[18px] py-4 text-base font-black flex items-center justify-center gap-2 hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-50"
+        >
+          {loading ? 'Processing...' : `🔒 Pay ${formatRWF(total)}`}
+        </button>
+        <div className="text-center text-xs text-muted-foreground font-semibold mt-2.5">
+          🔐 256-bit encrypted · Safe & secure
+        </div>
       </div>
     </div>
   );

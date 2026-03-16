@@ -1,152 +1,123 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp, t } from '@/context/AppContext';
-import { Button } from '@/components/ui/button';
-import { formatRWF } from '@/data/busData';
-import { Check, Download, Share2, Wallet } from 'lucide-react';
-
-const confettiColors = ['#00E87A', '#0A5C36', '#F5A623', '#FF6B6B', '#4ECDC4', '#FFE66D'];
+import { formatRWF, getCityCode, getSeatLabel } from '@/data/busData';
 
 const ConfirmationScreen = () => {
   const { language, bookingData, setCurrentScreen } = useApp();
-  const [showConfetti, setShowConfetti] = useState(true);
   const bus = bookingData.selectedBus;
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowConfetti(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
 
   if (!bus) return null;
 
+  const seatLabel = bookingData.selectedSeats.length > 0
+    ? `Row ${Math.floor(bookingData.selectedSeats[0] / 4) + 1} · ${getSeatLabel(bookingData.selectedSeats[0])}`
+    : '—';
+
   return (
-    <div className="min-h-screen bg-background pb-24 relative overflow-hidden">
-      {/* Confetti */}
-      {showConfetti && (
-        <div className="fixed inset-0 pointer-events-none z-50">
-          {Array.from({ length: 30 }).map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{
-                x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 400),
-                y: -20,
-                rotate: 0,
-                scale: Math.random() * 0.5 + 0.5,
-              }}
-              animate={{
-                y: (typeof window !== 'undefined' ? window.innerHeight : 800) + 20,
-                rotate: Math.random() * 720,
-                x: `+=${(Math.random() - 0.5) * 200}`,
-              }}
-              transition={{
-                duration: Math.random() * 2 + 1,
-                delay: Math.random() * 0.5,
-                ease: 'easeIn',
-              }}
-              className="absolute w-3 h-3 rounded-sm"
-              style={{ backgroundColor: confettiColors[i % confettiColors.length] }}
-            />
-          ))}
-        </div>
-      )}
-
-      <div className="px-5 pt-20 flex flex-col items-center">
-        {/* Success check */}
+    <div className="min-h-screen bg-background pb-24">
+      {/* Success banner */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="mx-4 mt-16 bg-gradient-to-br from-green-100 to-green-50 border-[1.5px] border-green-400 rounded-[22px] py-[26px] px-5 text-center"
+      >
         <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', delay: 0.2 }}
-          className="w-20 h-20 rounded-full bg-accent-mint flex items-center justify-center mb-4"
+          className="text-[52px]"
         >
-          <Check className="w-10 h-10 text-foreground" strokeWidth={3} />
+          ✅
         </motion.div>
-        <motion.h1
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="text-2xl font-bold mb-1"
-        >
-          {t('Booking Confirmed!', 'Byemejwe!', language)}
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-muted-foreground text-sm"
-        >
-          {t('Your e-ticket is ready', 'Itike yawe yateguwe', language)}
-        </motion.p>
+        <div className="text-[22px] font-black text-foreground mt-2.5">Booking Confirmed!</div>
+        <div className="text-[13px] text-muted-foreground font-semibold mt-1">Your e-ticket is ready to use</div>
+      </motion.div>
 
-        {/* QR Code placeholder */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.6 }}
-          className="w-48 h-48 bg-card rounded-2xl card-shadow flex items-center justify-center mt-8 mb-6"
-        >
-          <div className="grid grid-cols-5 gap-1">
-            {Array.from({ length: 25 }).map((_, i) => (
-              <div
-                key={i}
-                className={`w-6 h-6 rounded-sm ${Math.random() > 0.4 ? 'bg-foreground' : 'bg-transparent'}`}
-              />
+      {/* E-Ticket Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="mx-4 mt-3.5 bg-white rounded-3xl overflow-hidden shadow-lg border border-border"
+      >
+        {/* Ticket header */}
+        <div className="bg-foreground px-[22px] py-[18px] flex justify-between items-center">
+          <div className="text-[15px] font-black text-white">
+            BusEase<span className="text-primary">.</span>
+          </div>
+          <div className="text-[10px] text-zinc-500 font-mono">{bookingData.bookingRef}</div>
+        </div>
+
+        {/* Ticket body */}
+        <div className="px-[22px] py-5">
+          {/* Route row */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <div className="text-[26px] font-black text-foreground">{getCityCode(bookingData.from)}</div>
+              <div className="text-[11px] text-muted-foreground font-semibold mt-0.5">{bookingData.from}</div>
+            </div>
+            <div className="text-xl text-primary font-bold">→</div>
+            <div className="text-right">
+              <div className="text-[26px] font-black text-foreground">{getCityCode(bookingData.to)}</div>
+              <div className="text-[11px] text-muted-foreground font-semibold mt-0.5 text-right">{bookingData.to}</div>
+            </div>
+          </div>
+
+          {/* Details grid */}
+          <div className="grid grid-cols-2 gap-2.5 mb-4">
+            {[
+              ['Date', bookingData.date || 'Today'],
+              ['Departure', `${bus.dep} AM`],
+              ['Passenger', bookingData.passengerName || 'Jean-Paul K.'],
+              ['Seat', seatLabel],
+            ].map(([label, value]) => (
+              <div key={label} className="bg-zinc-50 rounded-xl p-2.5 border border-zinc-100">
+                <div className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wider">{label}</div>
+                <div className="text-[13px] font-extrabold text-foreground mt-0.5">{value}</div>
+              </div>
             ))}
           </div>
-        </motion.div>
 
-        {/* Ticket details */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="w-full bg-card rounded-xl p-5 card-shadow"
-        >
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t('Passenger', 'Umugenzi', language)}</span>
-              <span className="font-semibold">{bookingData.passengerName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t('Route', 'Inzira', language)}</span>
-              <span className="font-semibold">{bookingData.from} → {bookingData.to}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t('Date & Time', 'Itariki n\'Isaha', language)}</span>
-              <span className="font-semibold">{bookingData.date} · {bus.dep}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t('Seat(s)', 'Intebe', language)}</span>
-              <span className="font-semibold">{bookingData.selectedSeats.map(s => s + 1).join(', ')}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t('Operator', 'Inyeshyamba', language)}</span>
-              <span className="font-semibold">{bus.operator.name}</span>
-            </div>
-            <div className="flex justify-between pt-2 border-t border-border">
-              <span className="text-muted-foreground">{t('Booking Ref', 'Nomero', language)}</span>
-              <span className="font-bold text-primary tracking-wider">{bookingData.bookingRef}</span>
-            </div>
+          {/* Tear line */}
+          <div className="relative mx-[-22px] mb-4 border-t-2 border-dashed border-zinc-200">
+            <div className="absolute left-[-11px] top-1/2 -translate-y-1/2 w-[22px] h-[22px] rounded-full bg-background" />
+            <div className="absolute right-[-11px] top-1/2 -translate-y-1/2 w-[22px] h-[22px] rounded-full bg-background" />
           </div>
-        </motion.div>
 
-        {/* Action buttons */}
-        <div className="flex gap-3 mt-6 w-full">
-          <Button variant="outline" size="sm" className="flex-1 gap-2">
-            <Download className="w-4 h-4" /> PDF
-          </Button>
-          <Button variant="outline" size="sm" className="flex-1 gap-2">
-            <Share2 className="w-4 h-4" /> {t('Share', 'Sangiza', language)}
-          </Button>
-          <Button variant="outline" size="sm" className="flex-1 gap-2">
-            <Wallet className="w-4 h-4" /> Wallet
-          </Button>
+          {/* QR Code */}
+          <div className="text-center">
+            <div className="w-[110px] h-[110px] mx-auto bg-zinc-100 rounded-[14px] border-[1.5px] border-zinc-200 flex items-center justify-center text-[64px]">
+              ▦
+            </div>
+            <div className="text-[11px] text-muted-foreground font-bold mt-2">Scan at boarding</div>
+          </div>
         </div>
 
+        {/* Ticket footer */}
+        <div className="bg-primary px-[22px] py-3.5 flex justify-between items-center">
+          <div>
+            <div className="text-[13px] font-black text-primary-foreground">{bus.operator.name}</div>
+            <div className="text-[11px] text-primary-foreground/70 font-semibold mt-0.5">Nyabugogo · Gate 4</div>
+          </div>
+          <div className="text-right">
+            <div className="text-[15px] font-black text-primary-foreground">{formatRWF(bus.price + 500)}</div>
+            <div className="text-[11px] text-primary-foreground/70 font-semibold">Paid · MoMo</div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Action buttons */}
+      <div className="flex gap-2 mx-4 mt-3.5">
+        <button className="flex-1 bg-primary text-primary-foreground py-[13px] rounded-[14px] text-xs font-extrabold flex items-center justify-center gap-1.5 hover:brightness-105 active:scale-[0.98] transition-all">
+          ⬇ Download
+        </button>
+        <button className="flex-1 bg-card text-foreground py-[13px] rounded-[14px] text-xs font-extrabold border border-border flex items-center justify-center gap-1.5 hover:bg-background transition-all">
+          📤 Share
+        </button>
         <button
           onClick={() => setCurrentScreen('home')}
-          className="mt-6 text-sm text-primary font-semibold tap-target"
+          className="flex-1 bg-card text-foreground py-[13px] rounded-[14px] text-xs font-extrabold border border-border flex items-center justify-center gap-1.5 hover:bg-background transition-all"
         >
-          {t('Back to Home', 'Subira Ahabanza', language)}
+          🏠 Home
         </button>
       </div>
     </div>
