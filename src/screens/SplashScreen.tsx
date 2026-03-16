@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { useApp, t } from '@/context/AppContext';
-import { Button } from '@/components/ui/button';
 import { Bus, MapPin } from 'lucide-react';
 import splashBg from '@/assets/splash-bg.jpg';
 
