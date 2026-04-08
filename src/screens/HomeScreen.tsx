@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp, t } from '@/context/AppContext';
 import { CITIES, POPULAR_ROUTES, LIVE_DEPARTURES, formatRWF, AMENITY_MAP } from '@/data/busData';
 import { ArrowUpDown, Calendar, Search, Bell, ChevronRight } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
+
 
 const HomeScreen = () => {
   const { language, bookingData, setBookingData, setCurrentScreen, userName } = useApp();
