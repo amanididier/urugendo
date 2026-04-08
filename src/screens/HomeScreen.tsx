@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp, t } from '@/context/AppContext';
-import { Button } from '@/components/ui/button';
-import { CITIES, POPULAR_ROUTES, LIVE_DEPARTURES, formatRWF, AMENITY_MAP, type City } from '@/data/busData';
-import { ArrowDownUp, Calendar, Search, Minus, Plus, ChevronRight, Bell } from 'lucide-react';
+import { CITIES, POPULAR_ROUTES, LIVE_DEPARTURES, formatRWF, AMENITY_MAP } from '@/data/busData';
+import { ArrowUpDown, Calendar, Search, Bell, ChevronRight } from 'lucide-react';
+
 
 const HomeScreen = () => {
   const { language, bookingData, setBookingData, setCurrentScreen, userName } = useApp();
@@ -38,35 +38,47 @@ const HomeScreen = () => {
     c.name.toLowerCase().includes(citySearch.toLowerCase())
   );
 
+  const isSearchReady = bookingData.from && bookingData.to;
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Top Bar */}
       <div className="flex justify-between items-center px-5 pt-14 anim">
-        <div className="text-xl font-black text-foreground tracking-tight">
-          BusEase<span className="text-primary">.</span>
+        <div className="text-[22px] font-extrabold text-foreground tracking-tight">
+          Urugendo<span className="text-warning">.</span>
         </div>
-        <button className="w-10 h-10 rounded-[14px] bg-card border border-border flex items-center justify-center relative">
-          <Bell className="w-[18px] h-[18px] text-foreground" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-background" />
+        <button className="relative w-10 h-10 rounded-xl border border-border flex items-center justify-center">
+          <Bell className="w-5 h-5 text-foreground" />
+          <motion.span
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+            className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full"
+            style={{ border: '2px solid white' }}
+          />
         </button>
       </div>
 
       {/* Greeting */}
-      <div className="px-5 pt-5 anim-d1">
+      <motion.div
+        initial={{ y: 12, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        className="px-5 pt-6"
+      >
         <p className="text-sm text-muted-foreground font-semibold">Muraho 👋</p>
-        <h2 className="text-2xl font-black text-foreground mt-1">Where to today?</h2>
-      </div>
+        <h2 className="text-[28px] font-extrabold text-foreground mt-1">Where to today?</h2>
+      </motion.div>
 
       {/* Search Card */}
-      <div className="mx-4 mt-4 bg-card rounded-3xl border border-border p-1.5 anim-d1">
+      <div className="mx-4 mt-3 bg-card rounded-3xl border border-border overflow-hidden anim-d1">
         {/* FROM */}
         <button
           onClick={() => { setShowFromPicker(true); setCitySearch(''); }}
-          className="w-full flex items-center px-3.5 py-3 rounded-[18px] hover:bg-background transition-colors relative"
+          className="w-full flex items-center px-4 py-3.5 border-b border-border hover:bg-muted/30 transition-colors"
         >
           <div className="w-2.5 h-2.5 rounded-full bg-primary mr-3 flex-shrink-0" />
           <div className="text-left flex-1">
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">From</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">From</p>
             <p className={`text-[15px] font-bold ${bookingData.from ? 'text-foreground' : 'text-muted-foreground'}`}>
               {bookingData.from || 'Select departure'}
             </p>
@@ -76,46 +88,46 @@ const HomeScreen = () => {
         {/* TO */}
         <button
           onClick={() => { setShowToPicker(true); setCitySearch(''); }}
-          className="w-full flex items-center px-3.5 py-3 rounded-[18px] hover:bg-background transition-colors relative border-t border-border"
+          className="w-full flex items-center px-4 py-3.5 border-b border-border hover:bg-muted/30 transition-colors relative"
         >
           <div className="w-2.5 h-2.5 rounded-full bg-warning mr-3 flex-shrink-0" />
           <div className="text-left flex-1">
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">To</p>
-            <p className={`text-[15px] font-bold ${bookingData.to ? 'text-foreground' : 'text-muted-foreground/50'}`}>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">To</p>
+            <p className={`text-[15px] font-bold ${bookingData.to ? 'text-foreground' : 'text-muted-foreground'}`}>
               {bookingData.to || 'Select destination'}
             </p>
           </div>
           <motion.button
             animate={{ rotate: isSwapping ? 180 : 0 }}
             onClick={(e) => { e.stopPropagation(); handleSwap(); }}
-            className="w-8 h-8 rounded-[10px] bg-background border border-border flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+            className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ArrowDownUp className="w-4 h-4" />
+            <ArrowUpDown className="w-3.5 h-3.5" />
           </motion.button>
         </button>
 
         {/* Date + Passengers row */}
-        <div className="flex gap-2 px-2 py-1.5">
+        <div className="flex gap-2 px-2.5 py-2.5 border-b border-border">
           <button
             onClick={() => setShowDatePicker(true)}
-            className="flex-1 flex items-center gap-2 bg-background rounded-[14px] px-3 py-2.5 border border-border hover:border-primary transition-colors"
+            className="flex-[0.65] flex items-center gap-2 bg-muted/50 rounded-xl px-3 py-2.5"
           >
             <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="text-sm font-bold text-foreground">
+            <span className="text-[13px] font-semibold text-secondary-foreground">
               {bookingData.date || 'Today'}
             </span>
           </button>
-          <div className="flex items-center gap-2 bg-background rounded-[14px] px-3 py-2.5 border border-border">
+          <div className="flex-[0.35] flex items-center justify-center gap-2 bg-muted/50 rounded-xl px-2 py-2.5">
             <button
               onClick={() => setBookingData(prev => ({ ...prev, passengers: Math.max(1, prev.passengers - 1) }))}
-              className="w-6 h-6 rounded-lg bg-card border border-border flex items-center justify-center text-foreground font-bold text-sm hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors"
+              className="w-6 h-6 rounded-full border border-border flex items-center justify-center text-foreground text-sm font-bold"
             >
               −
             </button>
             <span className="text-sm font-extrabold text-foreground min-w-[14px] text-center">{bookingData.passengers}</span>
             <button
               onClick={() => setBookingData(prev => ({ ...prev, passengers: Math.min(6, prev.passengers + 1) }))}
-              className="w-6 h-6 rounded-lg bg-card border border-border flex items-center justify-center text-foreground font-bold text-sm hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors"
+              className="w-6 h-6 rounded-full border border-border flex items-center justify-center text-foreground text-sm font-bold"
             >
               +
             </button>
@@ -123,25 +135,43 @@ const HomeScreen = () => {
         </div>
 
         {/* Search button */}
-        <div className="px-2 pb-1.5">
-          <Button
-            variant="mint"
-            size="lg"
-            className="w-full rounded-[20px]"
+        <div className="p-2">
+          <motion.button
             onClick={handleSearch}
-            disabled={!bookingData.from || !bookingData.to}
+            disabled={!isSearchReady}
+            animate={isSearchReady ? { scale: [1, 1.02, 1] } : {}}
+            transition={{ duration: 0.4 }}
+            className={`w-full h-12 rounded-full font-bold text-[15px] flex items-center justify-center gap-2 transition-colors ${
+              isSearchReady
+                ? 'bg-primary text-primary-foreground active:scale-[0.97]'
+                : 'bg-primary/40 text-white/70 cursor-not-allowed'
+            }`}
           >
-            <Search className="w-[18px] h-[18px]" />
+            <Search className="w-4 h-4" />
             Search Buses
-          </Button>
+          </motion.button>
         </div>
+      </div>
+
+      {/* Rugendo AI Tip */}
+      <div className="mx-4 mt-4 anim-d1">
+        <button className="w-full bg-card rounded-2xl border border-border flex items-center gap-3 p-3.5 hover:bg-muted/30 transition-colors">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-xl flex-shrink-0">
+            🚌
+          </div>
+          <div className="flex-1 text-left">
+            <p className="text-[13px] font-bold text-primary">Rugendo says hi! 👋</p>
+            <p className="text-xs text-secondary-foreground mt-0.5">Need help? Tap me and I'll find the best bus for you!</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+        </button>
       </div>
 
       {/* Popular Routes */}
       <div className="mt-6">
         <div className="flex justify-between items-center px-5 mb-3 anim-d2">
           <span className="text-[17px] font-extrabold text-foreground">Popular Routes</span>
-          <span className="text-sm font-bold text-primary cursor-pointer">See all</span>
+          <span className="text-[13px] font-bold text-primary cursor-pointer">See all</span>
         </div>
         <div className="flex gap-2.5 overflow-x-auto hide-scrollbar px-5 pb-2 anim-d2">
           {POPULAR_ROUTES.map((route, i) => (
@@ -150,13 +180,13 @@ const HomeScreen = () => {
               onClick={() => {
                 setBookingData(prev => ({ ...prev, from: route.from, to: route.to }));
               }}
-              className={`flex-shrink-0 min-w-[150px] bg-card border border-border rounded-[18px] px-4 py-3.5 text-left transition-all hover:border-primary ${
-                bookingData.from === route.from && bookingData.to === route.to ? 'border-primary' : ''
+              className={`flex-shrink-0 min-w-[150px] bg-card border rounded-xl px-3.5 py-3 text-left transition-all ${
+                bookingData.from === route.from && bookingData.to === route.to ? 'border-primary' : 'border-border'
               }`}
             >
-              <div className="text-[13px] font-extrabold text-foreground mb-1.5">{route.from} → {route.to}</div>
+              <div className="text-[13px] font-bold text-foreground mb-1.5">{route.from} → {route.to}</div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-extrabold text-primary">{formatRWF(route.price)}</span>
+                <span className="text-xs font-bold text-primary">{formatRWF(route.price)}</span>
                 <span className="w-[3px] h-[3px] bg-muted-foreground rounded-full" />
                 <span className="text-[11px] text-muted-foreground font-semibold">{route.duration}</span>
               </div>
@@ -169,8 +199,13 @@ const HomeScreen = () => {
       <div className="mt-4">
         <div className="flex justify-between items-center px-5 mb-3 anim-d3">
           <span className="text-[17px] font-extrabold text-foreground">Live Departures</span>
-          <span className="inline-flex items-center gap-1.5 bg-[hsl(var(--success-light))] text-green-700 px-2.5 py-1 rounded-full text-[11px] font-extrabold border border-green-200">
-            <span className="w-1.5 h-1.5 bg-green-500 rounded-full live-dot" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold" style={{ backgroundColor: '#DCFCE7', color: '#16A34A' }}>
+            <motion.span
+              animate={{ opacity: [1, 0.2, 1] }}
+              transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ backgroundColor: '#16A34A' }}
+            />
             Live
           </span>
         </div>
@@ -180,67 +215,72 @@ const HomeScreen = () => {
             key={dep.id}
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + i * 0.05 }}
+            transition={{ delay: 0.15 + i * 0.08 }}
             onClick={() => {
               setBookingData(prev => ({ ...prev, from: dep.from, to: dep.to, selectedBus: dep }));
               setCurrentScreen('results');
             }}
             className="mx-4 mb-3 cursor-pointer group"
           >
-            <div className="bg-card rounded-[20px] border border-border overflow-hidden transition-all group-hover:border-primary">
+            <div className="bg-card rounded-3xl border border-border overflow-hidden transition-all group-hover:border-primary">
               {/* Operator row */}
-              <div className="flex justify-between items-center px-[18px] pt-4 pb-2.5">
+              <div className="flex justify-between items-center px-4 pt-4 pb-2.5">
                 <div className="flex items-center gap-2.5">
-                  <div className={`w-10 h-10 rounded-[14px] bg-gradient-to-br ${dep.operator.gradient} flex items-center justify-center text-lg`}>
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${dep.operator.gradient} flex items-center justify-center text-lg`}>
                     {dep.operator.logo}
                   </div>
                   <div>
-                    <div className="text-[13px] font-extrabold text-foreground">{dep.operator.name}</div>
-                    <div className="text-[11px] text-muted-foreground">{dep.from} → {dep.to}</div>
+                    <div className="text-sm font-bold text-foreground">{dep.operator.name}</div>
+                    <div className="text-xs text-muted-foreground">{dep.from} → {dep.to}</div>
                   </div>
                 </div>
-                <span className={`text-[11px] font-extrabold px-2.5 py-1 rounded-full ${
-                  dep.seats <= 2 ? 'bg-red-50 text-red-700' :
-                  dep.seats <= 5 ? 'bg-amber-50 text-amber-700' :
-                  'bg-green-50 text-green-700'
-                }`}>
+                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${
+                  dep.seats <= 2 ? 'text-red-700' : dep.seats <= 5 ? 'text-amber-700' : 'text-green-700'
+                }`} style={{
+                  backgroundColor: dep.seats <= 2 ? '#FEE2E2' : dep.seats <= 5 ? '#FEF9C3' : '#DCFCE7'
+                }}>
                   {dep.seats <= 2 ? `${dep.seats} left!` : `${dep.seats} seats`}
                 </span>
               </div>
 
               {/* Times */}
-              <div className="flex items-center px-[18px] pb-3.5">
+              <div className="flex items-center px-4 pb-3.5">
                 <div>
-                  <div className="text-[28px] font-black text-foreground leading-none">{dep.dep}</div>
-                  <div className="text-[11px] text-muted-foreground font-semibold mt-1">Nyabugogo</div>
+                  <div className="text-[40px] font-black text-foreground leading-none">{dep.dep}</div>
+                  <div className="text-xs text-muted-foreground font-semibold mt-1">Nyabugogo</div>
                 </div>
-                <div className="flex-1 mx-2.5 flex flex-col items-center gap-1.5">
-                  <div className="bg-background rounded-full px-2.5 py-0.5 text-[11px] font-bold text-muted-foreground border border-border">
-                    {dep.duration}
-                  </div>
-                  <div className="w-full h-[1.5px] bg-border relative rounded">
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-zinc-300 rounded-full" />
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-zinc-300 rounded-full" />
+                <div className="flex-1 mx-3 flex flex-col items-center gap-1.5">
+                  <div className="text-[11px] font-bold text-muted-foreground">{dep.duration}</div>
+                  <div className="w-full h-px bg-border relative">
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-muted-foreground/30 rounded-full" />
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-muted-foreground/30 rounded-full" />
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-[28px] font-black text-foreground leading-none">{dep.arr}</div>
-                  <div className="text-[11px] text-muted-foreground font-semibold mt-1 text-right">{dep.to}</div>
+                  <div className="text-[40px] font-black text-foreground leading-none">{dep.arr}</div>
+                  <div className="text-xs text-muted-foreground font-semibold mt-1 text-right">{dep.to}</div>
                 </div>
               </div>
 
               {/* Bottom row */}
-              <div className="flex justify-between items-center px-[18px] pb-4 pt-2.5 border-t border-border">
-                <div className="flex gap-[5px]">
-                  {dep.amenities.map(a => (
-                    <div key={a} className="w-7 h-7 bg-background rounded-[9px] border border-border flex items-center justify-center text-[13px]">
+              <div className="flex justify-between items-center px-4 pb-4 pt-2.5 border-t border-border">
+                <div className="flex gap-1.5">
+                  {dep.amenities.map((a, ai) => (
+                    <motion.div
+                      key={a}
+                      initial={{ rotate: 0 }}
+                      animate={{ rotate: 360 }}
+                      transition={{ delay: ai * 0.1, duration: 0.5 }}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
+                      style={{ backgroundColor: '#F4F4F5' }}
+                    >
                       {AMENITY_MAP[a]?.emoji}
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
                 <div className="text-right">
                   <div className="text-[10px] text-muted-foreground font-semibold">per seat</div>
-                  <div className="text-[19px] font-black text-primary leading-none">{formatRWF(dep.price)}</div>
+                  <div className="text-xl font-bold text-primary leading-none">{formatRWF(dep.price)}</div>
                 </div>
               </div>
             </div>
@@ -264,14 +304,14 @@ const HomeScreen = () => {
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={e => e.stopPropagation()}
-              className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[28px] p-5 pt-3 bottom-sheet-shadow max-h-[70vh]"
+              className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[28px] p-5 pt-3 max-h-[70vh]"
+              style={{ boxShadow: '0 -8px 40px -4px rgba(0,0,0,0.12)' }}
             >
-              <div className="w-10 h-1 bg-muted rounded-full mx-auto mb-4" />
-              <h3 className="text-lg font-black mb-4">
+              <div className="w-10 h-1 bg-muted-foreground/20 rounded-full mx-auto mb-4" />
+              <h3 className="text-lg font-extrabold mb-4">
                 {showFromPicker ? 'Select Departure' : 'Select Destination'}
               </h3>
-              {/* Search */}
-              <div className="flex items-center gap-2 bg-background rounded-[14px] px-3 py-2.5 border border-border mb-3">
+              <div className="flex items-center gap-2 bg-muted/50 rounded-xl px-3 py-2.5 mb-3">
                 <Search className="w-4 h-4 text-muted-foreground" />
                 <input
                   type="text"
@@ -282,7 +322,7 @@ const HomeScreen = () => {
                   autoFocus
                 />
               </div>
-              <div className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider px-1 mb-2">All Cities</div>
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1 mb-2">All Cities</div>
               <div className="space-y-0.5 overflow-y-auto max-h-[45vh]">
                 {filteredCities.map(city => (
                   <button
@@ -296,14 +336,14 @@ const HomeScreen = () => {
                         setShowToPicker(false);
                       }
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-3 rounded-[14px] hover:bg-background active:bg-background transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted/30 active:bg-muted/50 transition-colors"
                   >
                     <span className="text-xl">{city.flag}</span>
                     <div className="flex-1 text-left">
                       <div className="text-sm font-bold text-foreground">{city.name}</div>
-                      <div className="text-[11px] text-muted-foreground">{city.terminal}</div>
+                      <div className="text-xs text-muted-foreground">{city.terminal}</div>
                     </div>
-                    <div className="text-[11px] font-bold text-muted-foreground bg-background px-2 py-1 rounded-md border border-border">{city.code}</div>
+                    <div className="text-[11px] font-bold text-muted-foreground font-mono">{city.code}</div>
                   </button>
                 ))}
               </div>
@@ -328,10 +368,11 @@ const HomeScreen = () => {
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={e => e.stopPropagation()}
-              className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[28px] p-5 pt-3 bottom-sheet-shadow"
+              className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[28px] p-5 pt-3"
+              style={{ boxShadow: '0 -8px 40px -4px rgba(0,0,0,0.12)' }}
             >
-              <div className="w-10 h-1 bg-muted rounded-full mx-auto mb-4" />
-              <h3 className="text-lg font-black mb-4">Select Date</h3>
+              <div className="w-10 h-1 bg-muted-foreground/20 rounded-full mx-auto mb-4" />
+              <h3 className="text-lg font-extrabold mb-4">Select Date</h3>
               <div className="grid grid-cols-4 gap-2">
                 {dates.map((d, i) => {
                   const label = d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -343,12 +384,12 @@ const HomeScreen = () => {
                         setBookingData(prev => ({ ...prev, date: label }));
                         setShowDatePicker(false);
                       }}
-                      className={`p-3 rounded-[14px] text-center text-sm font-medium transition-all ${
-                        isSelected ? 'bg-primary text-primary-foreground' : 'bg-background hover:border-primary border border-border'
+                      className={`p-3 rounded-xl text-center text-sm font-medium transition-all ${
+                        isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted/50 hover:border-primary border border-border'
                       }`}
                     >
                       <div className="text-xs opacity-70">{d.toLocaleDateString('en-US', { weekday: 'short' })}</div>
-                      <div className="text-lg font-black">{d.getDate()}</div>
+                      <div className="text-lg font-extrabold">{d.getDate()}</div>
                       <div className="text-xs">{d.toLocaleDateString('en-US', { month: 'short' })}</div>
                     </button>
                   );
