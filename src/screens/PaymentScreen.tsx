@@ -37,7 +37,8 @@ const PaymentScreen = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="flex flex-col min-h-screen bg-background">
+      <div className="flex-1 pb-4">
       {/* Header */}
       <div className="px-5 pt-14 pb-2">
         <div className="flex items-center gap-3">
@@ -108,8 +109,9 @@ const PaymentScreen = () => {
         </div>
       </div>
 
+      </div>
       {/* Pay button */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 z-40">
+      <div className="sticky bottom-0 left-0 right-0 bg-card border-t border-border p-4 z-40">
         <button
           onClick={handlePay}
           disabled={loading}

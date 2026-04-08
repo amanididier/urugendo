@@ -1,4 +1,5 @@
 import { useApp } from '@/context/AppContext';
+import { motion } from 'framer-motion';
 import { Home, Search, Ticket, User } from 'lucide-react';
 
 const tabs = [
@@ -25,8 +26,8 @@ const BottomNav = () => {
   const activeTab = activeMap[currentScreen] || 'home';
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t-[1.5px] border-border z-40">
-      <div className="flex items-center justify-around h-20 max-w-lg mx-auto pb-4">
+    <div className="sticky bottom-0 left-0 right-0 bg-card border-t border-border z-40">
+      <div className="flex items-center justify-around h-20 pb-4">
         {tabs.map(tab => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
@@ -34,16 +35,22 @@ const BottomNav = () => {
             <button
               key={tab.id}
               onClick={() => setCurrentScreen(tab.id)}
-              className={`flex flex-col items-center justify-center gap-[3px] px-4 py-2 rounded-2xl transition-all ${
-                isActive ? 'bg-primary/5' : ''
-              }`}
+              className="relative flex flex-col items-center justify-center gap-[3px] px-4 py-2 rounded-xl transition-all"
             >
+              {isActive && (
+                <motion.div
+                  layoutId="nav-pill"
+                  className="absolute inset-0 rounded-xl"
+                  style={{ backgroundColor: 'hsl(152 100% 36% / 0.07)' }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
               <Icon
-                className={`w-[22px] h-[22px] transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                className={`w-[22px] h-[22px] transition-colors relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
                 strokeWidth={2}
               />
               <span
-                className={`text-[10px] font-bold transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                className={`text-[10px] font-bold transition-colors relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
               >
                 {tab.label}
               </span>
