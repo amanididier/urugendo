@@ -30,7 +30,8 @@ const SeatSelectionScreen = () => {
   if (!bus) return null;
 
   return (
-    <div className="min-h-screen bg-background pb-36">
+    <div className="flex flex-col min-h-screen bg-background">
+      <div className="flex-1 pb-4">
       {/* Header */}
       <div className="px-5 pt-14 pb-2">
         <div className="flex items-center gap-3">
@@ -116,8 +117,9 @@ const SeatSelectionScreen = () => {
         </div>
       </div>
 
+      </div>
       {/* Bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-40">
+      <div className="sticky bottom-0 left-0 right-0 bg-card border-t border-border z-40">
         <div className="mx-4 my-3.5 bg-card rounded-[20px] border border-border p-4 flex items-center gap-3">
           <div className="flex-1">
             <div className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">Seat</div>
