@@ -70,10 +70,12 @@ export default {
         },
       },
       borderRadius: {
-        xl: "var(--radius)",
-        lg: "calc(var(--radius) - 6px)",
-        md: "calc(var(--radius) - 8px)",
-        sm: "calc(var(--radius) - 12px)",
+        "3xl": "24px",
+        "2xl": "24px",
+        xl: "16px",
+        lg: "14px",
+        md: "12px",
+        sm: "8px",
         full: "100px",
       },
       keyframes: {

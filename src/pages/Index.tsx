@@ -29,7 +29,7 @@ const Index = () => {
   const hasNav = showNav.includes(currentScreen);
 
   return (
-    <div className="max-w-lg mx-auto relative min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentScreen}
